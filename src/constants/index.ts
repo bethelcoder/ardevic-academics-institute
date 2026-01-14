@@ -3,11 +3,12 @@ export const DEPARTMENTS = [
     "Science", 
     "History", 
     "Language Arts", 
-    "Physical Education", 
+    "Physics",
+    "Computer Science",
     "Arts"
 ];
 
 export const DEPARTMENT_OPTIONS = DEPARTMENTS.map(dept => ({
-    value: dept.toLowerCase().replace(/\s+/g, '_'),
+    value: dept,
     label: dept,
 }));
