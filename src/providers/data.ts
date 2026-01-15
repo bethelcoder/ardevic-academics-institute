@@ -1,21 +1,47 @@
-import { BaseRecord, DataProvider, GetListParams, GetListResponse } from "@refinedev/core";
-import { MOCK_SUBJECTS } from "./mock-data";
-// Mock subject data for university courses
+import { ListResponse } from '@/types';
+import { BACKEND_BASE_URL } from './../constants/index';
+import { createDataProvider, CreateDataProviderOptions } from '@refinedev/rest';
 
-export const dataProvider: DataProvider = {
-    getList: async <TData extends BaseRecord = BaseRecord>({ resource }: GetListParams): Promise<GetListResponse<TData>> => {
-      if(resource != "subjects") return { data: [] as TData[], total: 0 };
+const options: CreateDataProviderOptions = {
+  getList: {
+    getEndpoint: ({ resource }) => resource,
+    buildQueryParams: async ({ resource, pagination, filters }) => {
+      const page = pagination?.currentPage ?? 1;
+      const pageSize = pagination?.pageSize ?? 10;
 
-      return {
-        data: MOCK_SUBJECTS as unknown as TData[],
-        total: MOCK_SUBJECTS.length,
-      }
+      const params: Record<string, string|number> = { page, limit:pageSize };
+
+      filters?.forEach((filter) => {
+        const field = 'field' in filter ? filter.field : '';
+        const value = String(filter.value);
+
+        if(resource === 'subjects') {
+          if(field === 'department') params.department = value;
+          if(field === 'name' || field === 'code') params.search = value;
+        }
+    });
+
+    return params;
+  },
+    // Extract the data array from API response
+    mapResponse: async (response) => {
+      const payload: ListResponse = await response.json();
+
+      // Your API returns: { data: [...], total: 123 }
+      // Refine needs: [...]
+      return payload.data ?? [];
     },
-    getOne: async () => { throw new Error("Method not implemented.") },
-    create: async () => { throw new Error("Method not implemented.") },
-    update: async () => { throw new Error("Method not implemented.") },
-    deleteOne: async () => { throw new Error("Method not implemented.") },
-    getMany: async () => { throw new Error("Method not implemented.") },
-    getApiUrl: () => '',
+    // Extract the total count for pagination
+    getTotalCount: async (response) => {
+      const payload: ListResponse = await response.json();
+      // Your API returns: { data: [...], total: 123 }
+      // Refine needs: 123
+      return payload.pagination?.total ?? payload.data?.length ?? 0;
+    },
+
+  }
 }
-        
+
+const { dataProvider } =  createDataProvider(BACKEND_BASE_URL, options);//Check documentation @ https://refine.dev/core/docs/data/packages/rest-data-provider/
+
+export { dataProvider };
