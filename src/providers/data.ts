@@ -2,6 +2,10 @@ import { ListResponse } from '@/types';
 import { BACKEND_BASE_URL } from './../constants/index';
 import { createDataProvider, CreateDataProviderOptions } from '@refinedev/rest';
 
+if(!BACKEND_BASE_URL) {
+  throw new Error('BACKEND_BASE_URL is not defined. Please set VITE_BACKEND_BASE_URL in your .env file.');
+}
+
 const options: CreateDataProviderOptions = {
   getList: {
     getEndpoint: ({ resource }) => resource,
@@ -25,7 +29,7 @@ const options: CreateDataProviderOptions = {
   },
     // Extract the data array from API response
     mapResponse: async (response) => {
-      const payload: ListResponse = await response.json();
+      const payload: ListResponse = await response.clone().json();
 
       // Your API returns: { data: [...], total: 123 }
       // Refine needs: [...]
@@ -33,7 +37,7 @@ const options: CreateDataProviderOptions = {
     },
     // Extract the total count for pagination
     getTotalCount: async (response) => {
-      const payload: ListResponse = await response.json();
+      const payload: ListResponse = await response.clone().json();
       // Your API returns: { data: [...], total: 123 }
       // Refine needs: 123
       return payload.pagination?.total ?? payload.data?.length ?? 0;
