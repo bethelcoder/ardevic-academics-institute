@@ -58,7 +58,7 @@ const SubjectsList = () => {
             },
             {
                 id: "department",
-                accessorKey: "department",
+                accessorKey: "department.name",
                 size: 150,
                 header: () =><p className='column-title'>Department</p>,
                 cell: ({ getValue }) => (
@@ -84,7 +84,7 @@ const SubjectsList = () => {
             resource: "subjects",
             pagination: { pageSize: 10, mode: "server"},
             filters: {
-                permanent: [...departmentFilters]
+                permanent: [...departmentFilters, ...searchFilters]
             },
             sorters: {
                 initial: [
