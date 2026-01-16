@@ -84,7 +84,7 @@ const SubjectsList = () => {
             resource: "subjects",
             pagination: { pageSize: 10, mode: "server"},
             filters: {
-                permanent: [...departmentFilters]
+                permanent: [...departmentFilters, ...searchFilters]
             },
             sorters: {
                 initial: [
